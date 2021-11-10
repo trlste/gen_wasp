@@ -7,13 +7,14 @@
 from tables import *
 import sys
 import numpy as np
-import scipy
-
+from scipy import stats
+import getopt
 n=0
 lambda_file=''
 chromosome_name='chr22'
+argv=sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv,"hl:n:")
+    opts, args = getopt.getopt(argv,"hl:n:i:")
 except getopt.GetoptError:
     print ('generate_read_counts.py -l <lambda_inv_file> -n <num_samples>')
     sys.exit(2) 
@@ -24,29 +25,44 @@ for opt, arg in opts:
     elif opt in ("-l"):
         lambda_file = arg
     elif opt in ("-n"):
-        n = arg
+        n = int(arg)
+    elif opt in ("-i"):
+        ind_file=arg
 
+with open(ind_file) as f:
+    ind_list=f.readlines()
+ind_list=[x.split()[0] for x in ind_list]
+print(ind_list)
 l=np.loadtxt(lambda_file,delimiter=" ")
 two_q=len(l)
-noiseY = np.random.multivariate_normal(np.zeros(two_q), l, size=n).reshape((2*n,-1))
-cdf=scipy.stats.norm.cdf(noiseY)
-read_counts=scipy.stats.nbinom.ppf(cdf)
+noiseY = np.random.multivariate_normal(np.zeros(two_q), l, size=n)
+cdf=stats.norm.cdf(noiseY)
+print(cdf)
+print(cdf.shape)
+print(l.shape)
+
+read_counts=np.array([np.diagonal(stats.nbinom.ppf(cdf[i],l,0)) for i in range(len(cdf))]).reshape((2*n,-1))
+print(read_counts)
 read_counts=read_counts[::2,:]+read_counts[1::2,:]
 #split 50-50
 alt_read_counts=read_counts//2
 ref_read_counts=read_counts-alt_read_counts
 # other is currently all 0
-other_read_counts=np.zeroes((n,two_q//2))
-
-h5file = open_file(alt_read_count_file, mode="w", title="alt read count test file")
-h5file.create_array("/", chromosome_name,alt_read_counts)
-h5file.close()
-h5file = open_file(ref_read_count_file, mode="w", title="ref read count test file")
-h5file.create_array("/", chromosome_name,ref_read_counts)
-h5file.close()
-h5file = open_file(other_read_count_file, mode="w", title="other read count test file")
-h5file.create_array("/", chromosome_name,other_read_counts)
-h5file.close()
-h5file = open_file(read_count_file, mode="w", title="read count test file")
-h5file.create_array("/", chromosome_name,read_counts)
-h5file.close()
+other_read_counts=np.zeros((n,two_q//2))
+for ind in ind_list:
+    alt_read_count_file='alt_as_counts.'+ind+'.h5'
+    h5file = open_file(alt_read_count_file, mode="w", title="alt read count test file")
+    ref_read_count_file='ref_as_counts.'+ind+'.h5'
+    h5file.create_array("/", chromosome_name,alt_read_counts)
+    h5file.close()
+    h5file = open_file(ref_read_count_file, mode="w", title="ref read count test file")
+    h5file.create_array("/", chromosome_name,ref_read_counts)
+    h5file.close()
+    other_read_count_file='other_as_counts.'+ind+'.h5'
+    h5file = open_file(other_read_count_file, mode="w", title="other read count test file")
+    h5file.create_array("/", chromosome_name,other_read_counts)
+    h5file.close()
+    read_count_file='read_counts.'+ind+'.h5'
+    h5file = open_file(read_count_file, mode="w", title="read count test file")
+    h5file.create_array("/", chromosome_name,read_counts)
+    h5file.close()

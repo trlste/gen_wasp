@@ -5,9 +5,6 @@ import scipy.sparse as ssp
 import scipy.sparse.linalg as ssl
 import sys
 
-#sys.path.append("../Mega-sCGGM/")
-from mega_scggm import mega_scggm
-from q_mega_scggm import q_mega_scggm
 
 n = 5
 m = 2
@@ -46,9 +43,9 @@ for i in range(q):
         Y[l,i]=float('nan')
         Y[l,i+q]=float('nan')
 
-x_file='x_file'
-y_file='y_file'
-lambda_inv_file='lambda_inv_file'
-np.savetxt(x_file,Xnew,delimiter=" ")
-np.savetxt(y_file,Y,delimiter=" ")
+x_file='x_file.txt'
+y_file='y_file.txt'
+lambda_inv_file='lambda_inv_file.txt'
+np.savetxt(x_file,Xnew,fmt="%d",delimiter=" ")
+np.savetxt(y_file,Y.reshape((2*n,-1)),delimiter=" ")
 np.savetxt(lambda_inv_file,Sigma.todense(),delimiter=' ')
