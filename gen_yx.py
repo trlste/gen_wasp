@@ -8,8 +8,8 @@ import sys
 
 n = 5
 m = 2
-p = 3
-q = 3
+p = 30
+q = 50
 nan_percent_col=0.0
 #r = 5
 

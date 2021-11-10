@@ -16,11 +16,11 @@ argv=sys.argv[1:]
 try:
     opts, args = getopt.getopt(argv,"hl:n:i:")
 except getopt.GetoptError:
-    print ('generate_read_counts.py -l <lambda_inv_file> -n <num_samples>')
+    print ('generate_read_counts.py -l <lambda_inv_file> -n <num_samples> -i <individuals_file>')
     sys.exit(2) 
 for opt, arg in opts:
     if opt == '-h':
-        print ('generate_read_counts.py -l <lambda_inv_file> -n <num_samples>')
+        print ('generate_read_counts.py -l <lambda_inv_file> -n <num_samples> -i <individuals_file>')
         sys.exit()
     elif opt in ("-l"):
         lambda_file = arg
@@ -49,20 +49,22 @@ alt_read_counts=read_counts//2
 ref_read_counts=read_counts-alt_read_counts
 # other is currently all 0
 other_read_counts=np.zeros((n,two_q//2))
+c=0
 for ind in ind_list:
     alt_read_count_file='alt_as_counts.'+ind+'.h5'
     h5file = open_file(alt_read_count_file, mode="w", title="alt read count test file")
     ref_read_count_file='ref_as_counts.'+ind+'.h5'
-    h5file.create_array("/", chromosome_name,alt_read_counts)
+    h5file.create_array("/", chromosome_name,alt_read_counts[c].astype('uint16'))
     h5file.close()
     h5file = open_file(ref_read_count_file, mode="w", title="ref read count test file")
-    h5file.create_array("/", chromosome_name,ref_read_counts)
+    h5file.create_array("/", chromosome_name,ref_read_counts[c].astype('uint16'))
     h5file.close()
     other_read_count_file='other_as_counts.'+ind+'.h5'
     h5file = open_file(other_read_count_file, mode="w", title="other read count test file")
-    h5file.create_array("/", chromosome_name,other_read_counts)
+    h5file.create_array("/", chromosome_name,other_read_counts[c].astype('uint16'))
     h5file.close()
     read_count_file='read_counts.'+ind+'.h5'
     h5file = open_file(read_count_file, mode="w", title="read count test file")
-    h5file.create_array("/", chromosome_name,read_counts)
+    h5file.create_array("/", chromosome_name,read_counts[c].astype('uint16'))
     h5file.close()
+    c+=1
