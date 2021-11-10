@@ -4,3 +4,4 @@ extract_haplotype_read_counts.py
 chromosome.py
 chromstat.py
 __pycache__/
+generate_target_region_input.py
