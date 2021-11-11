@@ -16,11 +16,11 @@ argv=sys.argv[1:]
 try:
     opts, args = getopt.getopt(argv,"hn:p:q:",['nan_percent='])
 except getopt.GetoptError:
-    print ('generate_read_counts.py -n <num_samples> -p <num_SNP> -q <num_genes> --nan_percent <num_missing>')
+    print ('gen_yx.py -n <num_samples> -p <num_SNP> -q <num_genes> --nan_percent <num_missing>')
     sys.exit(2)
 for opt, arg in opts:
     if opt == '-h':
-        print ('generate_read_counts.py -n <num_samples> -p <num_SNP> -q <num_genes> --nan_percent <num_missing>')
+        print ('gen_yx.py -n <num_samples> -p <num_SNP> -q <num_genes> --nan_percent <num_missing>')
         sys.exit()
     elif opt in ("-n"):
         n = int(arg)
