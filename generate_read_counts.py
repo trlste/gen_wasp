@@ -32,17 +32,16 @@ for opt, arg in opts:
 with open(ind_file) as f:
     ind_list=f.readlines()
 ind_list=[x.split()[0] for x in ind_list]
-print(ind_list)
 l=np.loadtxt(lambda_file,delimiter=" ")
 two_q=len(l)
 noiseY = np.random.multivariate_normal(np.zeros(two_q), l, size=n)
 cdf=stats.norm.cdf(noiseY)
-print(cdf)
-print(cdf.shape)
-print(l.shape)
-
-read_counts=np.array([np.diagonal(stats.nbinom.ppf(cdf[i],l,0)) for i in range(len(cdf))]).reshape((2*n,-1))
-print(read_counts)
+epsilon=1
+mean=np.zeros((n,two_q))+epsilon
+variance=np.tile(np.diag(l)+epsilon,(n,1))
+p=np.divide(mean,variance)
+r=np.divide(mean**2,variance-mean)
+read_counts=np.array([stats.nbinom.ppf(cdf[i],r[i],p[i]) for i in range(len(cdf))]).reshape((2*n,-1))
 read_counts=read_counts[::2,:]+read_counts[1::2,:]
 #split 50-50
 alt_read_counts=read_counts//2
