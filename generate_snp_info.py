@@ -56,7 +56,7 @@ with open('y_metadata_file.txt','w') as f:
 #haplotype file
 haplotype=x.T
 h5file = open_file(haplotype_file, mode="w", title="Haplotype test file")
-h5file.create_array("/", chromosome_name,haplotype)
+h5file.create_array(h5file.root, chromosome_name,haplotype)
 #h5file
 h5file.close()
 
@@ -75,13 +75,13 @@ for i in range(num_genes):
         snp_ind.append(np.where(snp_positions == i)[0][0])
 print(snp_ind)
 h5file = open_file(snp_ind_file, mode="w", title="Snp ind test file")
-h5file.create_array("/", chromosome_name,np.array(snp_ind))
+h5file.create_array(h5file.root, chromosome_name,np.array(snp_ind))
 h5file.close()
 
 #snp_tab file (name,pos,allele1, allele2)
 snp_tab_name=[str(i) for i in range(num_snp)]
 h5file = open_file(snp_tab_file, mode="w", title="Snp table test file")
-table=h5file.create_table('/',chromosome_name,SNP)
+table=h5file.create_table(h5file.root,chromosome_name,SNP)
 snp_row=table.row
 for i in range(num_snp):
     snp_row['name']=snp_tab_name[i]
@@ -95,5 +95,5 @@ h5file.close()
 geno_prob=np.array([0.25,0.5,0.25])
 geno_prob=np.tile(geno_prob,(num_snp,num_samples//2))
 h5file = open_file(geno_prob_file, mode="w", title="genotype prob test file")
-h5file.create_array("/", chromosome_name,geno_prob)
+h5file.create_array(h5file.root, chromosome_name,geno_prob)
 h5file.close()

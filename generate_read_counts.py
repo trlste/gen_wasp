@@ -9,6 +9,9 @@ import sys
 import numpy as np
 from scipy import stats
 import getopt
+import chromosome
+import chromstat
+import os
 n=0
 lambda_file=''
 chromosome_name='chr22'
@@ -43,27 +46,46 @@ p=np.divide(mean,variance)
 r=np.divide(mean**2,variance-mean)
 read_counts=np.array([stats.nbinom.ppf(cdf[i],r[i],p[i]) for i in range(len(cdf))]).reshape((2*n,-1))
 read_counts=read_counts[::2,:]+read_counts[1::2,:]
-#split 50-50
-alt_read_counts=read_counts//2
-ref_read_counts=read_counts-alt_read_counts
+print("read counts\n")
+print(read_counts)
+#split 40-40-20
+alt_read_counts=np.floor(read_counts*0.4)
+#print(alt_read_counts)
+ref_read_counts=np.floor(read_counts*0.4)
+other_read_counts=read_counts-alt_read_counts-ref_read_counts
 # other is currently all 0
-other_read_counts=np.zeros((n,two_q//2))
+#other_read_counts=np.zeros((n,two_q//2))
 c=0
+os.system("mkdir -p read_counts")
 for ind in ind_list:
-    alt_read_count_file='alt_as_counts.'+ind+'.h5'
+    alt_read_count_file='read_counts/alt_as_counts.'+ind+'.h5'
     h5file = open_file(alt_read_count_file, mode="w", title="alt read count test file")
-    ref_read_count_file='ref_as_counts.'+ind+'.h5'
-    h5file.create_array("/", chromosome_name,alt_read_counts[c].astype('uint16'))
+    ref_read_count_file='read_counts/ref_as_counts.'+ind+'.h5'
+    h5file.create_array(h5file.root, chromosome_name,alt_read_counts[c].astype('uint16'))
     h5file.close()
     h5file = open_file(ref_read_count_file, mode="w", title="ref read count test file")
-    h5file.create_array("/", chromosome_name,ref_read_counts[c].astype('uint16'))
+    h5file.create_array(h5file.root, chromosome_name,ref_read_counts[c].astype('uint16'))
     h5file.close()
-    other_read_count_file='other_as_counts.'+ind+'.h5'
+    other_read_count_file='read_counts/other_as_counts.'+ind+'.h5'
     h5file = open_file(other_read_count_file, mode="w", title="other read count test file")
-    h5file.create_array("/", chromosome_name,other_read_counts[c].astype('uint16'))
+    h5file.create_array(h5file.root, chromosome_name,other_read_counts[c].astype('uint16'))
     h5file.close()
-    read_count_file='read_counts.'+ind+'.h5'
+    read_count_file='read_counts/read_counts.'+ind+'.h5'
     h5file = open_file(read_count_file, mode="w", title="read count test file")
-    h5file.create_array("/", chromosome_name,read_counts[c].astype('uint16'))
+    h5file.create_array(h5file.root, chromosome_name,read_counts[c].astype('uint16'))
     h5file.close()
     c+=1
+
+for item in ind_list:
+    item=item.rstrip()
+    chrom_list = chromosome.get_all_chromosomes("chrom_info.txt")
+    ref_count_h5 = open_file("read_counts/ref_as_counts."+item+".h5", "a")
+    alt_count_h5 = open_file("read_counts/alt_as_counts."+item+".h5", "a")
+    other_count_h5 = open_file("read_counts/other_as_counts."+item+".h5", "a")
+    read_count_h5 = open_file("read_counts/read_counts."+item+".h5", "a")
+
+    output_h5 = [ref_count_h5, alt_count_h5, other_count_h5, read_count_h5]
+    for h5f in output_h5:
+       # print(h5f)
+        chromstat.set_stats(h5f, chrom_list)
+        h5f.close()
