@@ -9,6 +9,6 @@ to generate the X files and the Y files.
 
 Then run
 ```bash
-python3 run_wasp_gen.py -x <x> -y <y>
+python3 run_wasp_gen.py -x <x> -y <y> run_wasp_gen.py --target_region_size <t> --min_as_count <a> --min_read_count <r> --min_het_count <h> --min_minor_allele_count <m>
 ```
-with the generated X files and the Y files to output the necessary files to run step 5 of CHT (get_target_regions.py)
+with the generated X files and the Y files to run CHT. The output will be cht_results.txt in the same folder. Note that the CHT files needs to be in the same folder as this pipeline.
